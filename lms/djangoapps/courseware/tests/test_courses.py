@@ -88,6 +88,19 @@ class CoursesTest(ModuleStoreTestCase):
         assert error.value.access_response.error_code == 'not_visible_to_user'
         assert not error.value.access_response.has_access
 
+    @ddt.data(GET_COURSE_WITH_ACCESS, GET_COURSE_OVERVIEW_WITH_ACCESS)
+    def test_old_mongo_access_error(self, course_access_func_name):
+        course_access_func = self.COURSE_ACCESS_FUNCS[course_access_func_name]
+        user = UserFactory.create()
+        with self.store.default_store(ModuleStoreEnum.Type.mongo):
+            course = CourseFactory.create()
+
+        with pytest.raises(CoursewareAccessException) as error:
+            course_access_func(user, 'load', course.id)
+        assert str(error.value) == 'Course not found.'
+        assert error.value.access_response.error_code is None
+        assert not error.value.access_response.has_access
+
     @ddt.data(
         (GET_COURSE_WITH_ACCESS, 3),
         (GET_COURSE_OVERVIEW_WITH_ACCESS, 0),
