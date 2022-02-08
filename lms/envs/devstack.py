@@ -445,6 +445,11 @@ PROCTORING_USER_OBFUSCATION_KEY = '85920908f28904ed733fe576320db18cabd7b6cd'
 #################### Webpack Configuration Settings ##############################
 WEBPACK_LOADER['DEFAULT']['TIMEOUT'] = 5
 
+########################## IP Address Determination ##########################
+# Devstack isn't behind a proxy
+CLIENT_IP_REQUEST_META_FIELD = 'REMOTE_ADDR'
+CLIENT_IP_REQUEST_META_INDEX = -1
+
 ################# New settings must go ABOVE this line #################
 ########################################################################
 # See if the developer has any local overrides.

@@ -91,7 +91,7 @@ class TrackMiddlewareTestCase(TestCase):
 
     def test_single_forward_for_header_ip_context(self):
         request = self.request_factory.get('/courses/')
-        remote_addr = '127.0.0.1'
+        remote_addr = '10.0.0.1'
         forwarded_ip = '11.22.33.44'
 
         request.META['REMOTE_ADDR'] = remote_addr
@@ -102,14 +102,14 @@ class TrackMiddlewareTestCase(TestCase):
 
     def test_multiple_forward_for_header_ip_context(self):
         request = self.request_factory.get('/courses/')
-        remote_addr = '127.0.0.1'
-        forwarded_ip = '11.22.33.44, 10.0.0.1, 127.0.0.1'
+        remote_addr = '10.0.0.1'  # reverse proxy, e.g. nginx
+        forwarded_ip = '11.22.33.44, 5.6.7.8'  # what nginx sent us
 
         request.META['REMOTE_ADDR'] = remote_addr
         request.META['HTTP_X_FORWARDED_FOR'] = forwarded_ip
         context = self.get_context_for_request(request)
 
-        assert context['ip'] == '11.22.33.44'
+        assert context['ip'] == '5.6.7.8'
 
     def get_context_for_path(self, path):
         """Extract the generated event tracking context for a given request for the given path."""
