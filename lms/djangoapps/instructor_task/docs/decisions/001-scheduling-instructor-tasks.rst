@@ -21,24 +21,27 @@ Decision
 * We will extend the existing ``InstructorTask`` model with a new (nullable) column to link an instructor task to its schedule.
 * We will introduce a new **SCHEDULED** state that will be used by the ``InstructorTask`` model to denote a task that has been scheduled for execution at a later date and time.
 * Instructor tasks without a schedule will continue to be executed immediately.
+* A scheduled instructor task will be reserved in the LMS database but will *not* be submitted to Celery for execution until it is due.
 
 The ``InstructorTaskSchedule`` model
 ====================================
 
 This new model that will be responsible for tracking the due date of an instructor task, as well as some information needed to process the tasks later. The model will have two fields:
 
-* **due** (DateTime): The date and time to execute the associated Instructor Task.
-* **task_args** (TextField): This will store information required to execute the task later. The source data is in the form of a dictionary that will be converted to text for storage in the database.
+* **due** (DateTime): The date and time (in UTC) to execute the associated task.
+* **task_args** (TextField): This will store information required to execute the task when due. The source data is in the form of a dictionary that will be converted to text for storage in the database.
 
 Extending the ``InstructorTask`` model
 ======================================
 
 We will extend the existing ``InstructorTask`` model with a new nullable column named **schedule**. This field will have a OneToOne relation to the ``InstructorTaskSchedule`` model. An instructor task is a one-time task and thus should only ever have a single schedule attributed to it.
 
-New State
-=========
+New **SCHEDULED** Status
+========================
 
-The ``InstructorTask`` model currently uses two custom states (**QUEUEING** and **PROGRESS**) to describe the current status of a task. We will introduce a third custom state named **SCHEDULED** to represent the status of a scheduled instructor task.
+The ``InstructorTask`` model currently uses two custom states (**QUEUEING** and **PROGRESS**) to help describe the current status of a task. We will introduce a new state, **SCHEDULED**, to represent the status of an instructor task that has been created but hasn't been executed yet.
+
+Scheduled tasks will be periodically retrieved by use of this status to determine if they are due for execution.
 
 Rejected Solutions
 ------------------
@@ -46,7 +49,7 @@ Rejected Solutions
 Celery: the ``eta`` and ``countdown`` arguments
 ===============================================
 
-Celery provides two `optional arguments`_ (**eta** and **countdown**) that can delay the execution of a task. 
+Celery provides two `optional arguments`_ (**eta** and **countdown**) that can delay the execution of a task.
 
 * **eta**: A specific date and time describing the earliest moment a task should be executed.
 * **countdown**: How many seconds Celery should wait before a task should be executed.
@@ -58,4 +61,4 @@ Object Inheritance
 
 We considered creating a new ``ScheduledInstructorTask`` model that inherits from the existing ``InstructorTask`` model. After reading about how Django treats model inheritance, we decided against this route. Using (single-table or multi-table) inheritance didn't provide any clear or discernable advantages (and there were plenty of documented reasons *not* to use a multi-table inheritance approach).
 
-.. _optional arguments: https://docs.celeryproject.org/en/latest/userguide/calling.html?highlight=countdown#eta-and-countdown 
+.. _optional arguments: https://docs.celeryproject.org/en/latest/userguide/calling.html?highlight=countdown#eta-and-countdown

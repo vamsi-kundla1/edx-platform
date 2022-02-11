@@ -16,9 +16,9 @@ This ADR will cover our approach for the execution of scheduled instructor tasks
 Decision
 --------
 
-A management command will handle submitting scheduled tasks to Celery that are due for execution. This management command will rely on new utility functions introduced to the **instructor_task** app to query tasks that require processing.
+A management command will be introduced to assist in processing scheduled instructor tasks. This management command will rely on new utility functions in the **instructor_task** app of edx-platform to query tasks that have the **SCHEDULED** status and then determine if these tasks are due for execution.
 
-This management command will be invoked by a Jenkins job running on a (cron) schedule to process scheduled tasks due for execution.	
+This management command will be invoked by a Jenkins job running on a (cron) schedule to process scheduled tasks due for execution.	The job will run every fifteen minutes.
 
 Rejected Solutions
 ------------------
