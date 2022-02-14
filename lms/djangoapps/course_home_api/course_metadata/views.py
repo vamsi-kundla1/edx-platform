@@ -16,6 +16,9 @@ from lms.djangoapps.course_api.api import course_detail
 from lms.djangoapps.course_goals.models import UserActivity
 from lms.djangoapps.course_home_api.course_metadata.serializers import CourseHomeMetadataSerializer
 from lms.djangoapps.courseware.access import has_access
+from lms.djangoapps.courseware.access_response import (
+    CoursewareMicrofrontendDisabledAccessError,
+)
 from lms.djangoapps.courseware.context_processor import user_timezone_locale_prefs
 from lms.djangoapps.courseware.courses import check_course_access
 from lms.djangoapps.courseware.masquerade import setup_masquerade
@@ -89,6 +92,15 @@ class CourseHomeMetadataView(RetrieveAPIView):
             check_if_authenticated=True,
         )
 
+        if load_access and not courseware_mfe_is_visible(
+            course_key,
+            original_user_is_global_staff,
+            original_user_is_staff
+        ):
+            course_access = CoursewareMicrofrontendDisabledAccessError()
+        else:
+            course_access = load_access
+
         _, request.user = setup_masquerade(
             request,
             course_key,
@@ -130,7 +142,7 @@ class CourseHomeMetadataView(RetrieveAPIView):
             'title': course.display_name_with_default,
             'is_self_paced': getattr(course, 'self_paced', False),
             'is_enrolled': user_is_enrolled,
-            'course_access': load_access.to_json(),
+            'course_access': course_access.to_json(),
             'can_load_courseware': can_load_courseware,
             'celebrations': celebrations,
             'user_timezone': user_timezone,

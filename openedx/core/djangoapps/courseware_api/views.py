@@ -26,9 +26,7 @@ from lms.djangoapps.course_api.api import course_detail
 from lms.djangoapps.course_goals.models import UserActivity
 from lms.djangoapps.course_goals.api import get_course_goal
 from lms.djangoapps.courseware.access import has_access
-from lms.djangoapps.courseware.access_response import (
-    CoursewareMicrofrontendDisabledAccessError,
-)
+
 from lms.djangoapps.courseware.context_processor import user_timezone_locale_prefs
 from lms.djangoapps.courseware.courses import check_course_access
 from lms.djangoapps.courseware.masquerade import (
@@ -115,16 +113,6 @@ class CoursewareMeta:
     def __getattr__(self, name):
         return getattr(self.overview, name)
 
-    def is_microfrontend_enabled_for_user(self):
-        """
-        Can this user see the MFE for this course?
-        """
-        return courseware_mfe_is_visible(
-            course_key=self.course_key,
-            is_global_staff=self.original_user_is_global_staff,
-            is_course_staff=self.original_user_is_staff
-        )
-
     @property
     def enrollment(self):
         """
@@ -160,24 +148,6 @@ class CoursewareMeta:
     @property
     def license(self):
         return self.course.license
-
-    @property
-    def username(self):
-        return self.effective_user.username
-
-    @property
-    def course_access(self) -> dict:
-        """
-        Can the user load this course in the learning micro-frontend?
-
-        Return a JSON-friendly access response.
-        """
-        # Only check whether the MFE is enabled if the user would otherwise be allowed to see it
-        # This means that if the user was denied access, they'll see a meaningful message first if
-        # there is one.
-        if self.load_access and not self.is_microfrontend_enabled_for_user():
-            return CoursewareMicrofrontendDisabledAccessError().to_json()
-        return self.load_access.to_json()
 
     @property
     def tabs(self):
