@@ -18,7 +18,6 @@ Decision
 --------
 
 * We will introduce a new ``InstructorTaskSchedule`` model to track the (optional) schedule of an instructor task.
-* We will extend the existing ``InstructorTask`` model with a new (nullable) column to link an instructor task to its schedule.
 * We will introduce a new **SCHEDULED** state that will be used by the ``InstructorTask`` model to denote a task that has been scheduled for execution at a later date and time.
 * Instructor tasks without a schedule will continue to be executed immediately.
 * A scheduled instructor task will be reserved in the LMS database but will *not* be submitted to Celery for execution until it is due.
@@ -30,18 +29,16 @@ This new model that will be responsible for tracking the due date of an instruct
 
 * **due** (DateTime): The date and time (in UTC) to execute the associated task.
 * **task_args** (TextField): This will store information required to execute the task when due. The source data is in the form of a dictionary that will be converted to text for storage in the database.
+* **task** (OneToOneField, **InstructorTask**): Allows us to link the related **InstructorTask** instance to its schedule.
 
-Extending the ``InstructorTask`` model
-======================================
-
-We will extend the existing ``InstructorTask`` model with a new nullable column named **schedule**. This field will have a OneToOne relation to the ``InstructorTaskSchedule`` model. An instructor task is a one-time task and thus should only ever have a single schedule attributed to it.
+A OneToOne relationship is specified on the ``InstructorTaskSchedule`` model in order to avoid modifying the core ``InstructorTask`` model. An instructor task is a one-time task that should only ever have a single schedule attributed to it. 
 
 New **SCHEDULED** Status
 ========================
 
 The ``InstructorTask`` model currently uses two custom states (**QUEUEING** and **PROGRESS**) to help describe the current status of a task. We will introduce a new state, **SCHEDULED**, to represent the status of an instructor task that has been created but hasn't been executed yet.
 
-Scheduled tasks will be periodically retrieved by use of this status to determine if they are due for execution.
+Scheduled tasks will be periodically retrieved by use of this status while determining if they should be executed.
 
 Rejected Solutions
 ------------------
