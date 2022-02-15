@@ -9,10 +9,10 @@ Usage:
 decorator `django.utils.decorators.decorator_from_middleware(middleware_class)`
 
 """
+import ipaddress
 import logging
 
 from django.utils.deprecation import MiddlewareMixin
-from ipware.utils import is_public_ip
 
 from openedx.core.djangoapps.util.ip import get_client_ip
 
@@ -42,3 +42,14 @@ class CountryMiddleware(MiddlewareMixin):
             request.session['country_code'] = country_code
             request.session['ip_address'] = new_ip_address
             log.debug('Country code for IP: %s is set to %s', new_ip_address, country_code)
+
+
+def is_public_ip(ip_str):
+    """
+    Return True if string represents a public IP address, or False if
+    in private address space or malformed.
+    """
+    try:
+        return ipaddress.ip_address(ip_str).is_global
+    except ValueError:
+        return False

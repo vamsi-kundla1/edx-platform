@@ -40,4 +40,9 @@ class XForwardedForMiddleware(MiddlewareMixin):
         # calling `get_client_ip` itself, which is configurable and
         # makes it possible to handle multi-valued headers correctly.
         # After that, this override can be removed.
+        #
+        # The ORIGINAL_REMOTE_ADDR is just there so that we can
+        # actually use the remote addr in IP determination
+        # code... including in this call that overwrites it!
+        request.META['ORIGINAL_REMOTE_ADDR'] = request.META['REMOTE_ADDR']
         request.META['REMOTE_ADDR'] = ip.get_client_ip(request)

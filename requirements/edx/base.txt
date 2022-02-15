@@ -277,7 +277,6 @@ django-filter==21.1
     #   lti-consumer-xblock
 django-ipware==4.0.2
     # via
-    #   -r requirements/edx/base.in
     #   edx-enterprise
     #   edx-proctoring
 django-js-asset==2.0.0
