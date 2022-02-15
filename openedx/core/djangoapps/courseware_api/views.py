@@ -17,6 +17,11 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from xmodule.modulestore.django import modulestore
+from xmodule.modulestore.exceptions import ItemNotFoundError, NoPathToItem
+from xmodule.modulestore.search import path_to_location
+from xmodule.x_module import PUBLIC_VIEW, STUDENT_VIEW
+
 from common.djangoapps.course_modes.models import CourseMode
 from common.djangoapps.util.views import expose_header
 from lms.djangoapps.edxnotes.helpers import is_feature_enabled
@@ -39,7 +44,6 @@ from lms.djangoapps.courseware.module_render import get_module_by_usage_id
 from lms.djangoapps.courseware.tabs import get_course_tab_list
 from lms.djangoapps.courseware.toggles import (
     courseware_legacy_is_visible,
-    courseware_mfe_is_visible,
     course_exit_page_is_active,
 )
 from lms.djangoapps.courseware.views.views import get_cert_data
@@ -62,10 +66,6 @@ from common.djangoapps.student.models import (
     CourseEnrollmentCelebration,
     LinkedInAddToProfileConfiguration
 )
-from xmodule.modulestore.django import modulestore  # lint-amnesty, pylint: disable=wrong-import-order
-from xmodule.modulestore.exceptions import ItemNotFoundError, NoPathToItem  # lint-amnesty, pylint: disable=wrong-import-order
-from xmodule.modulestore.search import path_to_location  # lint-amnesty, pylint: disable=wrong-import-order
-from xmodule.x_module import PUBLIC_VIEW, STUDENT_VIEW  # lint-amnesty, pylint: disable=wrong-import-order
 
 from .serializers import CourseInfoSerializer
 from .utils import serialize_upgrade_info
