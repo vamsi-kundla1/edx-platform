@@ -176,7 +176,7 @@ class CourseApiTestViews(BaseCoursewareTests, MasqueradeMixin):
 
             if enrollment_mode == 'audit':
                 assert response.data['verify_identity_url'] is None
-                assert response.data['verification_status'] == 'none'  # lint-amnesty, pylint: disable=literal-comparison
+                assert response.data['verification_status'] == 'none'
                 assert response.data['linkedin_add_to_profile_url'] is None
             else:
                 assert response.data['certificate_data']['cert_status'] == 'earned_but_not_available'
@@ -185,7 +185,7 @@ class CourseApiTestViews(BaseCoursewareTests, MasqueradeMixin):
                 )
                 # The response contains an absolute URL so this is only checking the path of the final
                 assert expected_verify_identity_url in response.data['verify_identity_url']
-                assert response.data['verification_status'] == 'none'  # lint-amnesty, pylint: disable=literal-comparison
+                assert response.data['verification_status'] == 'none'
 
                 request = RequestFactory().request()
                 cert_url = get_certificate_url(course_id=self.course.id, uuid=cert.verify_uuid)
@@ -230,7 +230,6 @@ class CourseApiTestViews(BaseCoursewareTests, MasqueradeMixin):
                 assert response.data['enrollment']['mode'] is None
                 assert response.data['course_goals']['selected_goal'] is None
                 assert response.data['course_goals']['weekly_learning_goal_enabled'] is False
-
 
     @ddt.data(
         # Who has access to MFE courseware?
