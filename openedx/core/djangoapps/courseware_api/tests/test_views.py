@@ -299,15 +299,11 @@ class CourseApiTestViews(BaseCoursewareTests, MasqueradeMixin):
         if enroll_user:
             CourseEnrollment.enroll(user, self.course.id, 'audit')
 
-        patch_mfe_visible = mock.patch(
-            'openedx.core.djangoapps.courseware_api.views.courseware_mfe_is_visible',
-            return_value=mfe_is_visible,
-        )
         self.client.login(username=user, password='foo')
         if masquerade_role:
             self.update_masquerade(role=masquerade_role)
-        with patch_mfe_visible:
-            response = self.client.get(self.url)
+
+        response = self.client.get(self.url)
 
         assert response.status_code == 200
 
